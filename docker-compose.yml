@@ -1,0 +1,35 @@
+services:
+  postgres:
+    container_name: 'seiornote-db'
+    image: 'postgres:alpine3.16'
+    ports:
+      - '5432:5432'
+    expose:
+      - '5432'
+    environment:
+      POSTGRES_PASSWORD: 'randompassword'
+      POSTGRES_USER: 'admin'
+      POSTGRES_DB: 'seiornote'
+    restart: always
+  app:
+    container_name: 'seiornote-api'
+    build: .
+    ports:
+      - '8080:8080'
+    expose:
+      - '8080'
+    depends_on:
+      - postgres
+    restart: always
+    environment:
+      APP_PORT: '8080'
+      DB_HOST: 'postgres'
+      DB_PORT: '5432'
+      DB_DATABASE: 'seiornote'
+      DB_DATABASE_TEST: 'seiornote'
+      DB_USERNAME: 'admin'
+      DB_PASSWORD: 'randompassword'
+      JWT_SECRET: 'inirandomstringbuatsecretkey'
+      ENVIRONMENT: 'production'
+
+    
