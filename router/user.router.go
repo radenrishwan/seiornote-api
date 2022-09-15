@@ -1,13 +1,21 @@
 package router
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"seiornote/handler"
+	"seiornote/middleware"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 func NewUserRouter(app *fiber.App, userHandler handler.UserHandler) {
-	app.Post("/api/v1/user/register", userHandler.Register)
-	app.Post("/api/v1/user/login", userHandler.Login)
-	app.Delete("/api/v1/user/delete", userHandler.Delete)
-	app.Put("/api/v1/user/update", userHandler.Update)
+	userRouter := app.Group("/api/v1/user")
+
+	userRouter.Post("/register", userHandler.Register)
+	userRouter.Post("/login", userHandler.Login)
+	userRouter.Delete("/delete", userHandler.Delete)
+	userRouter.Put("/update", userHandler.Update)
+
+	userLogoutRouter := app.Group("/api/v1/user")
+	userLogoutRouter.Use(middleware.NoteMiddleware)
+	userLogoutRouter.Post("/logout", userHandler.Logout)
 }

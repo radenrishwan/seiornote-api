@@ -3,9 +3,6 @@ package service
 import (
 	"context"
 	"database/sql"
-	"github.com/joho/godotenv"
-	"github.com/stretchr/testify/assert"
-	"golang.org/x/crypto/bcrypt"
 	"seiornote/database"
 	"seiornote/helper"
 	"seiornote/model/domain"
@@ -13,6 +10,10 @@ import (
 	"seiornote/repository"
 	"seiornote/service"
 	"testing"
+
+	"github.com/joho/godotenv"
+	"github.com/stretchr/testify/assert"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func setupDb() *sql.DB {
@@ -63,6 +64,7 @@ func TestRegisterSuccess(t *testing.T) {
 	})
 
 	pwd, err := bcrypt.GenerateFromPassword([]byte(register.Password), bcrypt.DefaultCost)
+	helper.PanicIfError(err)
 
 	assert.Equal(t, register.Username, "raden")
 	assert.Nil(t, bcrypt.CompareHashAndPassword(pwd, []byte(register.Password)))
@@ -80,4 +82,50 @@ func TestRegisterSuccess(t *testing.T) {
 	_, err = sessionRepository.FindById(context.Background(), tx, domain.Session{UserId: register.Id})
 
 	assert.Nil(t, err)
+}
+
+func TestLoginSuccess(t *testing.T) {
+	db := setupDb()
+	userService := setupService()
+
+	tx, err := db.Begin()
+	helper.PanicIfError(err)
+
+	defer helper.CommitOrRollback(tx)
+
+	register := userService.Register(context.Background(), web.RegisterUserRequest{
+		Username: "raden",
+		Password: "inipassword",
+		Email:    "testemail@gmail.com",
+	})
+
+	login := userService.Login(context.Background(), web.LoginUserRequest{
+		Username: "raden",
+		Password: "inipassword",
+	})
+
+	assert.Equal(t, register.Token, login.Token)
+	assert.Equal(t, register.Email, login.Email)
+	assert.Equal(t, register.CreatedAt, login.CreatedAt)
+	assert.Equal(t, register.Email, login.Email)
+}
+
+func TextLogoutSuccess(t *testing.T) {
+	db := setupDb()
+	userService := setupService()
+
+	tx, err := db.Begin()
+	helper.PanicIfError(err)
+
+	defer helper.CommitOrRollback(tx)
+
+	register := userService.Register(context.Background(), web.RegisterUserRequest{
+		Username: "raden",
+		Password: "inipassword",
+		Email:    "testemail@gmail.com",
+	})
+
+	login := userService.Logout(context.Background(), register.Token)
+
+	assert.Equal(t, login, "Logout success")
 }

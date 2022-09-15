@@ -50,6 +50,7 @@ func main() {
 	app.Get("/", func(ctx *fiber.Ctx) error {
 		return ctx.JSON(fiber.Map{
 			"message": "App Running !!!",
+			"version": "1",
 		})
 	})
 

@@ -1,11 +1,13 @@
 package handler
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"net/http"
 	"seiornote/common"
+	"seiornote/helper"
 	"seiornote/model/web"
 	"seiornote/service"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type UserHandler interface {
@@ -13,6 +15,7 @@ type UserHandler interface {
 	Login(ctx *fiber.Ctx) error
 	Delete(ctx *fiber.Ctx) error
 	Update(ctx *fiber.Ctx) error
+	Logout(ctx *fiber.Ctx) error
 }
 
 type userHandler struct {
@@ -75,6 +78,17 @@ func (handler *userHandler) Update(ctx *fiber.Ctx) error {
 	return ctx.Status(http.StatusOK).JSON(common.Response[web.UserResponse]{
 		Code:    http.StatusOK,
 		Message: "User update successfully",
+		Data:    result,
+	})
+}
+
+func (handler *userHandler) Logout(ctx *fiber.Ctx) error {
+	token := helper.GetToken(ctx)
+	result := handler.UserService.Logout(ctx.Context(), token)
+
+	return ctx.Status(http.StatusOK).JSON(common.Response[string]{
+		Code:    http.StatusOK,
+		Message: "User delete successfully",
 		Data:    result,
 	})
 }

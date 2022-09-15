@@ -3,19 +3,21 @@ package service
 import (
 	"context"
 	"database/sql"
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"seiornote/exception"
 	"seiornote/helper"
 	"seiornote/model/domain"
 	"seiornote/model/web"
 	"seiornote/repository"
 	"seiornote/validation"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserService interface {
 	Register(ctx context.Context, request web.RegisterUserRequest) web.UserSessionResponse
 	Login(ctx context.Context, request web.LoginUserRequest) web.UserSessionResponse
+	Logout(ctx context.Context, token string) string
 	Update(ctx context.Context, request web.UpdateUserRequest) web.UserResponse
 	Delete(ctx context.Context, request web.DeleteUserRequest) web.UserResponse
 }
@@ -108,6 +110,22 @@ func (service *userService) Update(ctx context.Context, request web.UpdateUserRe
 	service.UserRepository.Update(ctx, tx, user)
 
 	return web.NewUserResponse(user)
+}
+
+func (service *userService) Logout(ctx context.Context, token string) string {
+	tx, err := service.DB.Begin()
+	helper.PanicIfError(err)
+
+	defer helper.CommitOrRollback(tx)
+
+	session, err := helper.ClaimToken(token)
+	helper.PanicIfError(err)
+
+	service.SessionRepository.Delete(ctx, tx, domain.Session{
+		UserId: session.UserId,
+	})
+
+	return "Logout success"
 }
 
 func (service *userService) Delete(ctx context.Context, request web.DeleteUserRequest) web.UserResponse {
