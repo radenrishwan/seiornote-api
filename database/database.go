@@ -57,6 +57,7 @@ func Migration() {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", username, password, host, port, database)
 
 	m, err := migrate.New("file://database/scheme", dsn)
+
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -64,7 +65,9 @@ func Migration() {
 	// migrate table
 	err = m.Up()
 	if err != nil {
-		log.Fatalln(err)
+		if err != migrate.ErrNoChange {
+			log.Fatalln(err.Error())
+		}
 	}
 
 	log.Println("Migration success")
