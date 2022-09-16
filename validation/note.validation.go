@@ -2,9 +2,10 @@ package validation
 
 import (
 	"fmt"
-	validation "github.com/go-ozzo/ozzo-validation"
 	"seiornote/exception"
 	"seiornote/model/web"
+
+	validation "github.com/go-ozzo/ozzo-validation"
 )
 
 func NewCreateNoteValidation(request web.CreateNoteRequest) {
@@ -71,7 +72,6 @@ func NewUpdateNoteValidation(request web.UpdateNoteRequest) {
 	err := validation.ValidateStruct(
 		&request,
 		validation.Field(&request.Id, validation.Required),
-		validation.Field(&request.UserId, validation.Required),
 		validation.Field(&request.Title,
 			validation.Required,
 			validation.Length(1, 25).Error(fmt.Sprintf(length, 1, 25)),

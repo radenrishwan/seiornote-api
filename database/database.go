@@ -33,6 +33,8 @@ func GetDatabase() *sql.DB {
 	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", username, password, host, port, database)
 
 	db, err := sql.Open("postgres", dsn)
+	db.SetMaxOpenConns(10)
+	db.SetConnMaxLifetime(10)
 	helper.PanicIfError(err)
 
 	err = db.Ping()

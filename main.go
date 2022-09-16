@@ -17,6 +17,10 @@ import (
 func main() {
 	db := database.GetDatabase()
 
+	// close db when app already closed
+	// connection must be close if you deploy on gcp cloud run because its always make new connection
+	defer db.Close()
+
 	app := fiber.New(fiber.Config{
 		AppName:      "seiornote-api",
 		ErrorHandler: handler.ErrorHandler,

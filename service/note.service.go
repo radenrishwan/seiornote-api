@@ -3,13 +3,14 @@ package service
 import (
 	"context"
 	"database/sql"
-	"github.com/google/uuid"
 	"seiornote/exception"
 	"seiornote/helper"
 	"seiornote/model/domain"
 	"seiornote/model/web"
 	"seiornote/repository"
 	"seiornote/validation"
+
+	"github.com/google/uuid"
 )
 
 type NoteService interface {
